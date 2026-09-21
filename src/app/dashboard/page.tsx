@@ -369,7 +369,7 @@ export default function DashboardPage() {
 
   return (
     <AppShell onOpenCreateModal={() => setIsCreateModalOpen(true)}>
-      <div className="space-y-4 sm:space-y-6 lg:space-y-8 max-w-7xl mx-auto w-full">
+      <div className="space-y-4 sm:space-y-6 w-full">
         {/* ── 1. Compact & Responsive Hero Header ───────────────────────────── */}
         <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-gradient-to-br from-slate-900 via-indigo-950 to-violet-950 text-white p-4 sm:p-6 lg:p-8 shadow-xl border border-white/10">
           {/* Ambient Lighting */}
