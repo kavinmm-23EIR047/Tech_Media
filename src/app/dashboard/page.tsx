@@ -91,6 +91,7 @@ function statusBadge(status: string): { bg: string; text: string; border: string
 // ── Main Dashboard Page ──────────────────────────────────────────────────────
 
 export default function DashboardPage() {
+  const { enquiries, stats, isLoading, isError, refetch } = useEnquiries(10);
   const [mounted, setMounted] = useState(false);
   const [greetingInfo, setGreetingInfo] = useState<{ greeting: string; period: TimePeriod }>({
     greeting: "Good day",
