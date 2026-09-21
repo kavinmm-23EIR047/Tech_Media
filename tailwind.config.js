@@ -1,0 +1,116 @@
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  darkMode: ["class"],
+  content: [
+    "./src/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/features/**/*.{js,ts,jsx,tsx,mdx}",
+  ],
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ["'Plus Jakarta Sans'", "var(--font-plus-jakarta)", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
+        mono: ["'JetBrains Mono'", "var(--font-jetbrains-mono)", "monospace"],
+      },
+      colors: {
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        primary: {
+          50: "#f5f3ff",
+          100: "#ede9fe",
+          200: "#ddd6fe",
+          300: "#c4b5fd",
+          400: "#a78bfa",
+          500: "#8b5cf6",
+          600: "#7c3aed",
+          700: "#6d28d9",
+          800: "#5b21b6",
+          900: "#4c1d95",
+          950: "#2e1065",
+          DEFAULT: "#7c3aed",
+          foreground: "#ffffff",
+        },
+        secondary: {
+          50: "#f8fafc",
+          100: "#f1f5f9",
+          200: "#e2e8f0",
+          300: "#cbd5e1",
+          400: "#94a3b8",
+          500: "#64748b",
+          600: "#475569",
+          700: "#334155",
+          800: "#1e293b",
+          900: "#0f172a",
+          DEFAULT: "#f1f5f9",
+          foreground: "#0f172a",
+        },
+        muted: {
+          DEFAULT: "#f1f5f9",
+          foreground: "#64748b",
+        },
+        accent: {
+          DEFAULT: "#f5f3ff",
+          foreground: "#7c3aed",
+        },
+        destructive: {
+          DEFAULT: "#ef4444",
+          foreground: "#ffffff",
+        },
+        border: "#e2e8f0",
+        input: "#e2e8f0",
+        ring: "#7c3aed",
+        status: {
+          open: {
+            bg: "#eff6ff",
+            text: "#1d4ed8",
+            border: "#bfdbfe",
+            dot: "#3b82f6",
+          },
+          inProgress: {
+            bg: "#f5f3ff",
+            text: "#6d28d9",
+            border: "#ddd6fe",
+            dot: "#8b5cf6",
+          },
+          won: {
+            bg: "#ecfdf5",
+            text: "#047857",
+            border: "#a7f3d0",
+            dot: "#10b981",
+          },
+          lost: {
+            bg: "#fff1f2",
+            text: "#be123c",
+            border: "#fecdd3",
+            dot: "#f43f5e",
+          },
+        },
+      },
+      borderRadius: {
+        lg: "0.75rem",
+        md: "0.5rem",
+        sm: "0.375rem",
+        xl: "1rem",
+        "2xl": "1.25rem",
+        "3xl": "1.5rem",
+      },
+      boxShadow: {
+        card: "0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04)",
+        "card-hover": "0 12px 28px -6px rgba(124, 58, 237, 0.12), 0 6px 12px -4px rgba(124, 58, 237, 0.06)",
+        violet: "0 10px 30px -10px rgba(124, 58, 237, 0.35)",
+        "violet-sm": "0 4px 14px -2px rgba(124, 58, 237, 0.25)",
+      },
+    },
+  },
+  plugins: [],
+};
