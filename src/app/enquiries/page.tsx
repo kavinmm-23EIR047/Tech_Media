@@ -10,6 +10,7 @@ import React, { useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { useEnquiries } from "@/features/enquiries/hooks/useEnquiries";
 import { useEnquiryMutations } from "@/features/enquiries/hooks/useEnquiryMutations";
+import { enquiryService } from "@/features/enquiries/services/enquiry.service";
 import { EnquiryHeader } from "./components/EnquiryHeader";
 import { EnquiryStats } from "./components/EnquiryStats";
 import { EnquiryFilters } from "./components/EnquiryFilters";
