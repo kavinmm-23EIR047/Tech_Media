@@ -8,7 +8,7 @@
 
 import React, { useMemo, useState } from "react";
 import { Search, SlidersHorizontal, X, ChevronDown, Calendar, Building2, User, RotateCcw } from "lucide-react";
-import { EnquiryFilters as FiltersType, EnquiryStatus, Enquiry } from "@/features/enquiries/types/enquiry.types";
+import { EnquiryFilters as FiltersType, EnquiryStatus, Enquiry, EnquiryStats } from "@/features/enquiries/types/enquiry.types";
 import { ViewMode } from "@/features/enquiries/hooks/useEnquiries";
 
 type PageTab = "overview" | "table" | "listview" | "segment" | "custom";
@@ -25,7 +25,7 @@ interface EnquiryFiltersProps {
   onViewModeChange: (mode: ViewMode) => void;
   totalFiltered: number;
   allEnquiries?: Enquiry[];
-  stats?: Record<string, number>;
+  stats?: EnquiryStats;
   onOpenCreateModal?: () => void;
   onExportCsv?: () => void;
 }
