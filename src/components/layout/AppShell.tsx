@@ -108,7 +108,7 @@ const AppShellContent: React.FC<AppShellProps> = ({ children, onOpenCreateModal 
           isSidebarCollapsed ? "md:pl-[68px]" : "md:pl-64"
         }`}
       >
-        <main className="flex-1 w-full max-w-full pt-15 md:pt-6 p-3 sm:p-4 md:p-6 lg:p-8 pb-24 md:pb-8">
+        <main className="flex-1 w-full max-w-full pt-16 md:pt-6 p-3 sm:p-4 md:p-6 lg:p-8 pb-28 md:pb-8">
           {children}
         </main>
       </div>
