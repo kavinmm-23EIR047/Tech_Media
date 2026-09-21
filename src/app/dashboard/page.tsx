@@ -91,9 +91,12 @@ function statusBadge(status: string): { bg: string; text: string; border: string
 // ── Main Dashboard Page ──────────────────────────────────────────────────────
 
 export default function DashboardPage() {
-  const { enquiries, stats, isLoading, isError, refetch } = useEnquiries(10);
-  const [greetingInfo, setGreetingInfo] = useState(getGreetingInfo);
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [mounted, setMounted] = useState(false);
+  const [greetingInfo, setGreetingInfo] = useState<{ greeting: string; period: TimePeriod }>({
+    greeting: "Good day",
+    period: "morning",
+  });
+  const [timeStr, setTimeStr] = useState<string>("");
   const [selectedTimeframe, setSelectedTimeframe] = useState<"7D" | "30D" | "90D" | "1Y">("30D");
   const [hoveredSegment, setHoveredSegment] = useState<string | null>(null);
   const [hoveredBarIndex, setHoveredBarIndex] = useState<number | null>(null);
@@ -103,21 +106,26 @@ export default function DashboardPage() {
   const { createEnquiry, isSubmitting, generalError } = useEnquiryMutations();
   const { success, error: toastError } = useToast();
 
-  // Live clock
+  // Client-only Live Clock (prevents SSR hydration mismatch)
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
+    setMounted(true);
+    const updateTime = () => {
+      const now = new Date();
+      setTimeStr(
+        now.toLocaleTimeString("en-IN", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: true,
+        })
+      );
       setGreetingInfo(getGreetingInfo());
-    }, 30_000);
+    };
+
+    updateTime();
+    const timer = setInterval(updateTime, 1000);
     return () => clearInterval(timer);
   }, []);
-
-  const timeStr = currentTime.toLocaleTimeString("en-IN", {
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: true,
-  });
 
   // Dynamic dropdown values for modal
   const availableGroups = useMemo(() => {
@@ -382,13 +390,19 @@ export default function DashboardPage() {
               <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[11px] font-semibold text-violet-200">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 <span>CRM Workspace</span>
-                <span className="text-white/30 hidden xs:inline">·</span>
-                <span className="font-mono text-[10px] text-white/90 hidden xs:inline">{timeStr}</span>
+                {mounted && timeStr && (
+                  <>
+                    <span className="text-white/30 hidden xs:inline">·</span>
+                    <span suppressHydrationWarning className="font-mono text-[10px] text-white/90 hidden xs:inline">
+                      {timeStr}
+                    </span>
+                  </>
+                )}
               </div>
 
               <h1 className="text-xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white flex items-center gap-2.5">
                 {renderGreetingIcon()}
-                <span>
+                <span suppressHydrationWarning>
                   {greetingInfo.greeting},{" "}
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-300 via-white to-indigo-200">
                     Sales Team
