@@ -1,12 +1,12 @@
 /**
  * CRM Executive Intelligence Dashboard
- * Perfectly Optimized for Mobile (< 640px), Tablet (640px - 1024px), and Desktop (> 1024px)
- * 1. Radiant Hero Banner with Responsive Action Grid & Ambient Badges
- * 2. 5-Tier Adaptive Metric KPI Cards (Clean 2-Col Mobile + Spanned 5th Card)
+ * Responsive & Modern:
+ * 1. Radiant Hero Banner with Lucide Sun/Moon Time-of-Day Icons
+ * 2. 5-Tier Adaptive Metric KPI Cards (2-Col Mobile + Spanned 5th Card)
  * 3. Responsive Volume & Pipeline Inflow Bar Chart with Timeframe Switcher
  * 4. Interactive SVG Donut Chart for Pipeline Stages & Conversion Index
  * 5. Market Segment Volume Matrix with Fluid Gradient Bars
- * 6. Sales Team Leaderboard with Medal Badges
+ * 6. Sales Team Leaderboard with Numbered Rank Badges (#1, #2, #3, #4)
  * 7. Live Customer Enquiries Feed with 1-Click Details View
  */
 
@@ -28,7 +28,6 @@ import {
   Inbox,
   RefreshCw,
   Plus,
-  Sparkles,
   BarChart3,
   PieChart,
   Building2,
@@ -41,16 +40,22 @@ import {
   ShieldCheck,
   Flame,
   ArrowRight,
+  Sun,
+  Sunrise,
+  Sunset,
+  Moon,
 } from "lucide-react";
 
-// ── Time & Greeting Helper ───────────────────────────────────────────────────
+// ── Time & Greeting Helper with Lucide Icons ──────────────────────────────────
 
-function getGreeting(): { greeting: string; emoji: string } {
+type TimePeriod = "morning" | "afternoon" | "evening" | "night";
+
+function getGreetingInfo(): { greeting: string; period: TimePeriod } {
   const h = new Date().getHours();
-  if (h < 12) return { greeting: "Good morning", emoji: "🌅" };
-  if (h < 17) return { greeting: "Good afternoon", emoji: "☀️" };
-  if (h < 20) return { greeting: "Good evening", emoji: "🌇" };
-  return { greeting: "Good night", emoji: "🌙" };
+  if (h < 12) return { greeting: "Good morning", period: "morning" };
+  if (h < 17) return { greeting: "Good afternoon", period: "afternoon" };
+  if (h < 20) return { greeting: "Good evening", period: "evening" };
+  return { greeting: "Good night", period: "night" };
 }
 
 function avatarColor(name: string): { bg: string; text: string; ring: string } {
@@ -87,7 +92,7 @@ function statusBadge(status: string): { bg: string; text: string; border: string
 
 export default function DashboardPage() {
   const { enquiries, stats, isLoading, isError, refetch } = useEnquiries(10);
-  const [{ greeting, emoji }, setGreeting] = useState(getGreeting);
+  const [greetingInfo, setGreetingInfo] = useState(getGreetingInfo);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedTimeframe, setSelectedTimeframe] = useState<"7D" | "30D" | "90D" | "1Y">("30D");
   const [hoveredSegment, setHoveredSegment] = useState<string | null>(null);
@@ -102,7 +107,7 @@ export default function DashboardPage() {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
-      setGreeting(getGreeting());
+      setGreetingInfo(getGreetingInfo());
     }, 30_000);
     return () => clearInterval(timer);
   }, []);
@@ -152,7 +157,7 @@ export default function DashboardPage() {
       icon: Inbox,
       color: "text-violet-600",
       bg: "bg-violet-50 text-violet-600",
-      pill: "+100% sync",
+      pill: "100% Vol",
       bar: stats.total > 0 ? 100 : 0,
       barColor: "bg-gradient-to-r from-violet-500 to-indigo-600",
     },
@@ -348,6 +353,20 @@ export default function DashboardPage() {
       .slice(0, 4);
   }, [stats.employeePerformance, enquiries]);
 
+  // Greeting Icon Renderer
+  const renderGreetingIcon = () => {
+    switch (greetingInfo.period) {
+      case "morning":
+        return <Sunrise className="w-5 h-5 sm:w-6 sm:h-6 text-amber-300 shrink-0" />;
+      case "afternoon":
+        return <Sun className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400 shrink-0" />;
+      case "evening":
+        return <Sunset className="w-5 h-5 sm:w-6 sm:h-6 text-orange-300 shrink-0" />;
+      case "night":
+        return <Moon className="w-5 h-5 sm:w-6 sm:h-6 text-indigo-200 shrink-0" />;
+    }
+  };
+
   return (
     <AppShell onOpenCreateModal={() => setIsCreateModalOpen(true)}>
       <div className="space-y-4 sm:space-y-6 lg:space-y-8 max-w-7xl mx-auto w-full">
@@ -362,15 +381,18 @@ export default function DashboardPage() {
             <div className="space-y-2.5 max-w-2xl">
               <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[11px] font-semibold text-violet-200">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span>Live Frappe CRM</span>
+                <span>CRM Workspace</span>
                 <span className="text-white/30 hidden xs:inline">·</span>
                 <span className="font-mono text-[10px] text-white/90 hidden xs:inline">{timeStr}</span>
               </div>
 
-              <h1 className="text-xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white">
-                {emoji} {greeting},{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-300 via-white to-indigo-200">
-                  Sales Team
+              <h1 className="text-xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white flex items-center gap-2.5">
+                {renderGreetingIcon()}
+                <span>
+                  {greetingInfo.greeting},{" "}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-300 via-white to-indigo-200">
+                    Sales Team
+                  </span>
                 </span>
               </h1>
 
@@ -402,7 +424,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Right Buttons: Fluid Responsive Grid */}
+            {/* Right Buttons */}
             <div className="flex flex-col sm:flex-row lg:flex-col gap-2 pt-1 lg:pt-0 shrink-0">
               <button
                 onClick={() => setIsCreateModalOpen(true)}
@@ -419,7 +441,7 @@ export default function DashboardPage() {
                   className="flex items-center justify-center gap-1.5 px-3 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold rounded-xl border border-white/15 backdrop-blur-md transition-colors cursor-pointer"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`} />
-                  <span>Sync</span>
+                  <span>Refresh</span>
                 </button>
 
                 <Link
@@ -791,7 +813,7 @@ export default function DashboardPage() {
                   <Award className="w-3.5 h-3.5 text-amber-500" />
                   <span>Team Leaderboard</span>
                 </div>
-                <span className="text-[11px] font-bold text-slate-400">Top Rank</span>
+                <span className="text-[11px] font-bold text-slate-400">Rank</span>
               </div>
 
               <h2 className="text-base font-black text-slate-900 tracking-tight">Active Officers</h2>
@@ -800,7 +822,12 @@ export default function DashboardPage() {
               <div className="space-y-2.5">
                 {topPerformers.map((emp, index) => {
                   const avatar = avatarColor(emp.name || emp.employee);
-                  const medals = ["🥇", "🥈", "🥉", "⚡"];
+                  const rankPills = [
+                    "bg-amber-100 text-amber-800 border-amber-300",
+                    "bg-slate-200 text-slate-800 border-slate-300",
+                    "bg-orange-100 text-orange-800 border-orange-200",
+                    "bg-slate-100 text-slate-700 border-slate-200",
+                  ];
 
                   return (
                     <div
@@ -808,7 +835,9 @@ export default function DashboardPage() {
                       className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100 transition-colors"
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <span className="text-xs shrink-0">{medals[index] || "•"}</span>
+                        <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded border shrink-0 ${rankPills[index] || "bg-slate-100 text-slate-700 border-slate-200"}`}>
+                          #{index + 1}
+                        </span>
                         <div className={`w-7 h-7 rounded-lg ${avatar.bg} ${avatar.text} flex items-center justify-center font-bold text-xs shrink-0 ring-1 ${avatar.ring}`}>
                           {(emp.name || emp.employee).split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase()}
                         </div>

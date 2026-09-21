@@ -193,19 +193,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {!isCollapsed && <span>Help &amp; Support</span>}
         </Link>
 
-        {/* Live API Status */}
+        {/* System Status */}
         {isCollapsed ? (
-          <div className="flex justify-center pt-2" title="Frappe API Connected · Live data">
+          <div className="flex justify-center pt-2" title="CRM Workspace Active">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
           </div>
         ) : (
           <div className="mx-1 mt-2 p-3 bg-gray-50 rounded-lg border border-gray-100">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
-              <span className="text-xs font-medium text-gray-600">Frappe API Connected</span>
+              <span className="text-xs font-semibold text-gray-700">CRM Workspace</span>
             </div>
             <p className="text-[10px] text-gray-400 mt-0.5 leading-relaxed">
-              logicx.tmnext.in · Live data
+              System Online · Synchronized
             </p>
           </div>
         )}
