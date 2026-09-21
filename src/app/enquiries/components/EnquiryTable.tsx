@@ -183,7 +183,7 @@ export const EnquiryTable: React.FC<EnquiryTableProps> = ({
   onPageChange,
   onEditEnquiry,
 }) => {
-  const allGroups = [...new Set(enquiries.map((e) => e.group).filter(Boolean))].sort();
+  const allGroups = Array.from(new Set(enquiries.map((e) => e.group).filter(Boolean))).sort();
 
   return (
     <div className="space-y-3">
