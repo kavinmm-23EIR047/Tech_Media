@@ -28,8 +28,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${plusJakarta.variable} ${jetbrainsMono.variable}`}>
-      <body className={`${plusJakarta.variable} ${jetbrainsMono.variable} min-h-screen bg-white text-gray-900 font-sans antialiased selection:bg-violet-100 selection:text-violet-900`}>
+    <html lang="en" className={`${plusJakarta.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
+      <body className={`${plusJakarta.variable} ${jetbrainsMono.variable} min-h-screen bg-white text-gray-900 font-sans antialiased selection:bg-violet-100 selection:text-violet-900`} suppressHydrationWarning>
         <ToastProvider>{children}</ToastProvider>
       </body>
     </html>

@@ -125,4 +125,27 @@ export class EnquiryApi {
       operation: "delete",
     });
   }
+
+  /**
+   * Auto-provision missing Enquiry Status link documents in Frappe backend
+   */
+  public static async ensureStatusExists(statusName: string): Promise<boolean> {
+    try {
+      await apiClient.post(
+        "/document/Enquiry Status",
+        {
+          status_name: statusName,
+          name: statusName,
+          status_group: "New",
+        },
+        {
+          module: "Enquiry",
+          operation: "ensureStatusExists",
+        }
+      );
+      return true;
+    } catch {
+      return false;
+    }
+  }
 }

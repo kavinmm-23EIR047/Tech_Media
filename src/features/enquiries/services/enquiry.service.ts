@@ -268,7 +268,19 @@ class EnquiryService {
     logger.log("Enquiry", "SERVICE", "Sending POST create request to Frappe API", payload);
 
     const frappePayload = this.prepareFrappePayload(payload);
-    const res = await EnquiryApi.create(frappePayload);
+    let res;
+    try {
+      res = await EnquiryApi.create(frappePayload);
+    } catch (err: any) {
+      const errStr = JSON.stringify(err);
+      if ((errStr.includes("LinkValidationError") || errStr.includes("Could not find Status")) && payload.status) {
+        logger.log("Enquiry", "SERVICE", `Auto-provisioning missing status '${payload.status}' in Frappe backend`);
+        await EnquiryApi.ensureStatusExists(payload.status);
+        res = await EnquiryApi.create(frappePayload);
+      } else {
+        throw err;
+      }
+    }
     const resPayload = res.data as any;
     const doc: FrappeEnquiryDoc | undefined = resPayload?.data || resPayload?.message || (resPayload?.name ? resPayload : undefined);
 
@@ -314,7 +326,19 @@ class EnquiryService {
       status_details: updates.statusDetails,
     };
 
-    const res = await EnquiryApi.update(id, payload);
+    let res;
+    try {
+      res = await EnquiryApi.update(id, payload);
+    } catch (err: any) {
+      const errStr = JSON.stringify(err);
+      if ((errStr.includes("LinkValidationError") || errStr.includes("Could not find Status")) && updates.status) {
+        logger.log("Enquiry", "SERVICE", `Auto-provisioning missing status '${updates.status}' in Frappe backend`);
+        await EnquiryApi.ensureStatusExists(updates.status);
+        res = await EnquiryApi.update(id, payload);
+      } else {
+        throw err;
+      }
+    }
     const resPayload = res.data as any;
     const doc: FrappeEnquiryDoc | undefined = resPayload?.data || resPayload?.message || (resPayload?.name ? resPayload : undefined);
     const updated = this.normalizeEnquiry(doc || ({ name: id, ...payload, creation: new Date().toISOString() } as FrappeEnquiryDoc));

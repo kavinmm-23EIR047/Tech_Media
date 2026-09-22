@@ -78,6 +78,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {onToggleCollapse && (
           <button
             onClick={onToggleCollapse}
+            suppressHydrationWarning
             className={`p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer ${
               isCollapsed ? "hidden" : "block"
             }`}
@@ -94,6 +95,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="px-2 pt-2 shrink-0 flex justify-center">
           <button
             onClick={onToggleCollapse}
+            suppressHydrationWarning
             className="w-full flex items-center justify-center p-2 text-gray-400 hover:text-violet-700 hover:bg-violet-50 rounded-lg transition-colors cursor-pointer"
             title="Expand Sidebar"
             aria-label="Expand sidebar"
@@ -108,6 +110,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {isCollapsed ? (
           <button
             onClick={onOpenSearch}
+            suppressHydrationWarning
             className="p-2 text-gray-400 hover:text-violet-700 hover:bg-violet-50 rounded-lg transition-colors cursor-pointer"
             title="Search (⌘K)"
             aria-label="Search"
@@ -117,6 +120,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         ) : (
           <button
             onClick={onOpenSearch}
+            suppressHydrationWarning
             className="w-full flex items-center gap-2.5 px-3 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-sm text-gray-500 transition-colors cursor-pointer"
           >
             <Search className="w-4 h-4 text-gray-400 shrink-0" />
