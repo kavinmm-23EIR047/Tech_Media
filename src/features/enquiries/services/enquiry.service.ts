@@ -112,20 +112,38 @@ class EnquiryService {
 
     let rawList: Enquiry[] = [];
 
-    const apiParams: EnquiryApiListParams = {
-      limitPageLength: 100,
-      limitStart: 0,
-      orderBy: `${filters.sortBy === "name" ? "name" : "creation"} ${filters.sortOrder}`,
-    };
-
     try {
-      const response = await EnquiryApi.getList(apiParams);
-      const docs = response.data?.message || response.data?.data || (Array.isArray(response.data) ? response.data : []);
+      // Frappe limits each get_list response. Fetch every page so the KPI cards,
+      // filters, and pagination use the full set of records instead of stopping at 100.
+      const batchSize = 100;
+      let limitStart = 0;
+      const seenIds = new Set<string>();
 
-      if (Array.isArray(docs)) {
-        logger.log("Enquiry", "SERVICE", `Frappe API returned ${docs.length} records`);
-        rawList = docs.map((d) => this.normalizeEnquiry(d));
+      while (true) {
+        const response = await EnquiryApi.getList({
+          limitPageLength: batchSize,
+          limitStart,
+          orderBy: `${filters.sortBy === "name" ? "name" : "creation"} ${filters.sortOrder}`,
+        });
+        const docs = response.data?.message || response.data?.data || (Array.isArray(response.data) ? response.data : []);
+
+        if (!Array.isArray(docs) || docs.length === 0) break;
+
+        const page = docs.map((doc) => this.normalizeEnquiry(doc));
+        const newRecords = page.filter((item) => {
+          if (seenIds.has(item.name)) return false;
+          seenIds.add(item.name);
+          return true;
+        });
+        rawList.push(...newRecords);
+
+        // A duplicate-only page indicates that the server did not advance the
+        // requested offset; stop safely rather than issuing requests forever.
+        if (newRecords.length === 0 || docs.length < batchSize) break;
+        limitStart += docs.length;
       }
+
+      logger.log("Enquiry", "SERVICE", `Frappe API returned ${rawList.length} total records`);
     } catch (err: any) {
       logger.error("Enquiry", "SERVICE", "Frappe API request error", err);
       // Re-throw so user is explicitly aware of API/token configuration requirements

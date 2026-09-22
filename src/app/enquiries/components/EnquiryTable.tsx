@@ -77,6 +77,19 @@ function groupBarWidth(group: string, allGroups: string[]): number {
   return Math.min(100, Math.max(25, Math.round(((idx + 1) / allGroups.length) * 100)));
 }
 
+function getPageItems(currentPage: number, totalPages: number): Array<number | "ellipsis"> {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, index) => index + 1);
+  }
+
+  if (currentPage <= 4) return [1, 2, 3, 4, 5, "ellipsis", totalPages];
+  if (currentPage >= totalPages - 3) {
+    return [1, "ellipsis", totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+  }
+
+  return [1, "ellipsis", currentPage - 1, currentPage, currentPage + 1, "ellipsis", totalPages];
+}
+
 // ── Mobile Card ────────────────────────────────────────────────────────────
 
 const MobileEnquiryCard: React.FC<{
@@ -184,6 +197,8 @@ export const EnquiryTable: React.FC<EnquiryTableProps> = ({
   onEditEnquiry,
 }) => {
   const allGroups = Array.from(new Set(enquiries.map((e) => e.group).filter(Boolean))).sort();
+  const totalPages = Math.max(pagination.totalPages, 1);
+  const pageItems = getPageItems(pagination.page, totalPages);
 
   return (
     <div className="space-y-3">
@@ -325,15 +340,34 @@ export const EnquiryTable: React.FC<EnquiryTableProps> = ({
           Previous
         </button>
 
-        <span className="text-sm text-gray-600">
-          Page <span className="font-semibold text-gray-900">{pagination.page}</span>{" "}
-          of{" "}
-          <span className="font-semibold text-gray-900">{Math.max(pagination.totalPages, 1)}</span>
-        </span>
+        <nav aria-label="Enquiry pages" className="flex items-center gap-1">
+          {pageItems.map((item, index) =>
+            item === "ellipsis" ? (
+              <span key={`ellipsis-${index}`} className="px-1.5 text-sm text-gray-400" aria-hidden="true">
+                …
+              </span>
+            ) : (
+              <button
+                key={item}
+                type="button"
+                onClick={() => onPageChange(item)}
+                aria-label={`Go to page ${item}`}
+                aria-current={item === pagination.page ? "page" : undefined}
+                className={`min-w-9 h-9 px-2 text-sm font-medium rounded-lg transition-colors cursor-pointer ${
+                  item === pagination.page
+                    ? "bg-violet-600 text-white shadow-sm"
+                    : "text-gray-700 hover:bg-violet-50 hover:text-violet-700"
+                }`}
+              >
+                {item}
+              </button>
+            )
+          )}
+        </nav>
 
         <button
           onClick={() => onPageChange(pagination.page + 1)}
-          disabled={pagination.page >= pagination.totalPages}
+          disabled={pagination.page >= totalPages}
           className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer flex items-center gap-1.5 shadow-xs"
         >
           Next
