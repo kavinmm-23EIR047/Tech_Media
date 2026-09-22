@@ -12,7 +12,7 @@
 
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { AppShell } from "@/components/layout/AppShell";
 import { useEnquiries } from "@/features/enquiries/hooks/useEnquiries";
@@ -128,22 +128,36 @@ export default function DashboardPage() {
     return () => clearInterval(timer);
   }, []);
 
-  // Dynamic dropdown values for modal
-  const availableGroups = useMemo(() => {
-    const groups = Array.from(new Set(enquiries.map((e) => e.group).filter(Boolean)));
-    return groups.length > 0 ? groups : ["Stores", "DELL", "Corporate", "Retail"];
-  }, [enquiries]);
+  // Dynamic dropdown values for modal (accumulated so options never shrink on filter)
+  const masterGroupsRef = useRef<Set<string>>(new Set(["Admin", "DELL", "MBO", "Service", "Stores"]));
+  const masterEmployeesRef = useRef<Map<string, string>>(new Map());
 
-  const availableEmployees = useMemo(() => {
-    const map = new Map<string, string>();
+  const availableGroups = useMemo<string[]>(() => {
+    if (stats?.byGroup) {
+      Object.keys(stats.byGroup).forEach((g) => {
+        if (g && g !== "Unassigned") masterGroupsRef.current.add(g);
+      });
+    }
+    enquiries.forEach((e) => {
+      if (e.group) masterGroupsRef.current.add(e.group);
+    });
+    return Array.from(masterGroupsRef.current).sort();
+  }, [enquiries, stats]);
+
+  const availableEmployees = useMemo<Array<{ id: string; name: string }>>(() => {
+    if (stats?.employeePerformance) {
+      stats.employeePerformance.forEach((emp: { employee: string; name: string }) => {
+        if (emp.employee) masterEmployeesRef.current.set(emp.employee, emp.name || emp.employee);
+      });
+    }
     enquiries.forEach((e) => {
       if (e.userEmployee) {
-        map.set(e.userEmployee, e.userEmployeeName || e.userEmployee);
+        masterEmployeesRef.current.set(e.userEmployee, e.userEmployeeName || e.userEmployee);
       }
     });
-    const list = Array.from(map.entries()).map(([id, name]) => ({ id, name }));
+    const list = Array.from(masterEmployeesRef.current.entries()).map(([id, name]: [string, string]) => ({ id, name }));
     return list.length > 0 ? list : [{ id: "HR-EMP-00003", name: "Sales Representative (HR-EMP-00003)" }];
-  }, [enquiries]);
+  }, [enquiries, stats]);
 
   const handleCreateEnquiry = async (formData: any): Promise<boolean> => {
     const created = await createEnquiry(formData);

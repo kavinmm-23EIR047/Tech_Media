@@ -6,7 +6,7 @@
 
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useRef } from "react";
 import { Search, SlidersHorizontal, X, ChevronDown, Calendar, Building2, User, RotateCcw } from "lucide-react";
 import { EnquiryFilters as FiltersType, EnquiryStatus, Enquiry, EnquiryStats } from "@/features/enquiries/types/enquiry.types";
 import { ViewMode } from "@/features/enquiries/hooks/useEnquiries";
@@ -41,23 +41,37 @@ export const EnquiryFilters: React.FC<EnquiryFiltersProps> = ({
   viewMode,
   onViewModeChange,
   allEnquiries = [],
+  stats,
 }) => {
   const [activeTab, setActiveTab] = useState<PageTab>("overview");
   const [isMoreFiltersOpen, setIsMoreFiltersOpen] = useState(false);
 
-  const dynamicGroups = useMemo(() => {
-    const groups = new Set<string>();
-    allEnquiries.forEach((e) => { if (e.group) groups.add(e.group); });
-    return Array.from(groups).sort();
-  }, [allEnquiries]);
+  const masterGroupsRef = useRef<Set<string>>(new Set(["Admin", "DELL", "MBO", "Service", "Stores"]));
+  const masterEmployeesRef = useRef<Map<string, string>>(new Map());
 
-  const dynamicEmployees = useMemo(() => {
-    const map = new Map<string, string>();
+  const dynamicGroups = useMemo<string[]>(() => {
+    if (stats?.byGroup) {
+      Object.keys(stats.byGroup).forEach((g) => {
+        if (g && g !== "Unassigned") masterGroupsRef.current.add(g);
+      });
+    }
     allEnquiries.forEach((e) => {
-      if (e.userEmployee) map.set(e.userEmployee, e.userEmployeeName || e.userEmployee);
+      if (e.group) masterGroupsRef.current.add(e.group);
     });
-    return Array.from(map.entries());
-  }, [allEnquiries]);
+    return Array.from(masterGroupsRef.current).sort();
+  }, [allEnquiries, stats]);
+
+  const dynamicEmployees = useMemo<Array<[string, string]>>(() => {
+    if (stats?.employeePerformance) {
+      stats.employeePerformance.forEach((emp: { employee: string; name: string }) => {
+        if (emp.employee) masterEmployeesRef.current.set(emp.employee, emp.name || emp.employee);
+      });
+    }
+    allEnquiries.forEach((e) => {
+      if (e.userEmployee) masterEmployeesRef.current.set(e.userEmployee, e.userEmployeeName || e.userEmployee);
+    });
+    return Array.from(masterEmployeesRef.current.entries());
+  }, [allEnquiries, stats]);
 
   const hasDateFilter = !!(filters.startDate || filters.endDate);
   const hasStatusFilter = filters.status !== "All";

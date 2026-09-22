@@ -101,22 +101,36 @@ export default function EnquiriesPage() {
     setIsCreateModalOpen(true);
   };
 
-  // Dynamic groups & employees derived from live Frappe API records
+  // Dynamic groups & employees derived from live Frappe API records (accumulated so dropdowns never shrink on filter)
+  const masterGroupsRef = React.useRef<Set<string>>(new Set(["Admin", "DELL", "MBO", "Service", "Stores"]));
+  const masterEmployeesRef = React.useRef<Map<string, string>>(new Map());
+
   const availableGroups = React.useMemo(() => {
-    const groups = Array.from(new Set(enquiries.map((e) => e.group).filter(Boolean)));
-    return groups.length > 0 ? groups : ["Stores", "DELL"];
-  }, [enquiries]);
+    if (stats?.byGroup) {
+      Object.keys(stats.byGroup).forEach((g) => {
+        if (g && g !== "Unassigned") masterGroupsRef.current.add(g);
+      });
+    }
+    enquiries.forEach((e) => {
+      if (e.group) masterGroupsRef.current.add(e.group);
+    });
+    return Array.from(masterGroupsRef.current).sort();
+  }, [enquiries, stats]);
 
   const availableEmployees = React.useMemo(() => {
-    const map = new Map<string, string>();
+    if (stats?.employeePerformance) {
+      stats.employeePerformance.forEach((emp) => {
+        if (emp.employee) masterEmployeesRef.current.set(emp.employee, emp.name || emp.employee);
+      });
+    }
     enquiries.forEach((e) => {
       if (e.userEmployee) {
-        map.set(e.userEmployee, e.userEmployeeName || e.userEmployee);
+        masterEmployeesRef.current.set(e.userEmployee, e.userEmployeeName || e.userEmployee);
       }
     });
-    const list = Array.from(map.entries()).map(([id, name]) => ({ id, name }));
+    const list = Array.from(masterEmployeesRef.current.entries()).map(([id, name]) => ({ id, name }));
     return list.length > 0 ? list : [{ id: "HR-EMP-00003", name: "Sales Representative (HR-EMP-00003)" }];
-  }, [enquiries]);
+  }, [enquiries, stats]);
 
   return (
     <AppShell onOpenCreateModal={openCreate}>
